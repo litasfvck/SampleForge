@@ -1,11 +1,11 @@
-﻿namespace SampleForge.Domain.Models;
+﻿namespace SampleForge.Domain.Entities;
 
 public class User
 {
     public Guid Id { get; set; }
-    public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+
     public ICollection<Sample> Samples { get; set; } = [];
-    public ICollection<MIDI> MIDIs { get; set; } = [];
+    public ICollection<Pack> Packs { get; set; } = [];
 }

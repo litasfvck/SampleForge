@@ -1,21 +1,39 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SampleForge.Domain.Models;
+using Microsoft.Extensions.Configuration;
+using SampleForge.Infrastructure.Configurations;
+using System.Reflection;
 
 namespace SampleForge.Infrastructure;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext : DbContext
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Sample> Samples { get; set; }
-    public DbSet<MIDI> MIDIs { get; set; }
+    private readonly IConfiguration _configuration;
 
+    public AppDbContext() {}
+
+    public AppDbContext(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    // вынесли из Program.cs подключение к ConnectionString
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseNpgsql(_configuration.GetConnectionString("Database"));
+    }
+
+    // Подключение конфигураций сущностей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // подключение конфигураций для таблиц
-        // modelBuilder.ApplyConfiguration(new UserConfiguration());
-        // modelBuilder.ApplyConfiguration(new SampleConfiguration());
-        // modelBuilder.ApplyConfiguration(new MIDIConfiguration());
+        // пример подключения всех конфигураций вручную
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new SampleConfiguration());
+        modelBuilder.ApplyConfiguration(new PackConfiguration());
+        modelBuilder.ApplyConfiguration(new TagConfiguration());
+        modelBuilder.ApplyConfiguration(new SampleTagConfiguration());
+        modelBuilder.ApplyConfiguration(new PackSampleConfiguration());
 
-        base.OnModelCreating(modelBuilder);
+        // подключение конфигураций через Assembly
+        // modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
